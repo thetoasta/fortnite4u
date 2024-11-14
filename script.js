@@ -1,22 +1,25 @@
-// Fortnite API Integration
-const fortniteApiUrl = 'https://fortnite-api.com/v1/stats/br/v2?name=USERNAME';
-const infoContent = document.getElementById('info-content');
+const shopContent = document.getElementById('shop-content');
+const fortniteShopUrl = 'https://fortnite-api.com/v2/shop/br';
 
-async function fetchFortniteInfo(username) {
+async function fetchShopData() {
   try {
-    const response = await fetch(fortniteApiUrl.replace('USERNAME', username));
+    const response = await fetch(fortniteShopUrl);
     const data = await response.json();
+    const items = data.data.daily.entries;
 
-    // Display basic information
-    infoContent.innerHTML = `
-      <p>Player: ${data.data.account.name}</p>
-      <p>Wins: ${data.data.stats.all.overall.wins}</p>
-      <p>Kills: ${data.data.stats.all.overall.kills}</p>
-    `;
+    items.forEach(item => {
+      const itemDiv = document.createElement('div');
+      itemDiv.classList.add('shop-item');
+      itemDiv.innerHTML = `
+        <img src="${item.images.icon}" alt="${item.name}" />
+        <h3>${item.name}</h3>
+        <p>Price: ${item.price} V-Bucks</p>
+      `;
+      shopContent.appendChild(itemDiv);
+    });
   } catch (error) {
-    infoContent.innerHTML = `<p>Could not retrieve data. Please try again later.</p>`;
+    console.error('Error fetching shop data:', error);
   }
 }
 
-// Call function with a test username (can replace USERNAME with input)
-fetchFortniteInfo('USERNAME');
+fetchShopData();
