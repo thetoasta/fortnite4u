@@ -1,30 +1,35 @@
-// Initialize the map centered around Fortnite map coordinates
-const map = L.map('map').setView([0, 0], 2); // Adjust the coordinates and zoom level
+// Initialize the map with Leaflet
+const map = L.map('map').setView([0, 0], 2); // Center on default coordinates, adjust as needed
 
-// Load the Fortnite map image as the base layer
-L.tileLayer('https://example-fortnite-map-tiles/{z}/{x}/{y}.png', {
-  attribution: '&copy; Fortnite Map',
-  maxZoom: 10,
+// Add base tile layer for the map
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
 }).addTo(map);
 
-// Fetch and display POIs on the map from the Fortnite API
-async function loadMapData() {
+// Fetch map data from the Fortnite API
+async function fetchFortniteMapData() {
   const url = 'https://fortnite-api.com/v1/map';
 
   try {
     const response = await fetch(url);
     const data = await response.json();
-    const pois = data.data.pois;
+    const pois = data.data.pois; // Points of interest from the map data
 
+    // Center the map on Fortnite's map area if lat/lng values are available
+    map.setView([data.data.lat, data.data.lng], 5);  // Example center, update as needed
+
+    // Loop through the POIs and add markers to the map
     pois.forEach(poi => {
-      // Add a marker for each point of interest
       L.marker([poi.location.lat, poi.location.lng])
         .addTo(map)
-        .bindPopup(`<b>${poi.name}</b><br>${poi.description}`);
+        .bindPopup(`
+          <b>${poi.name}</b><br>${poi.description}
+        `);
     });
   } catch (error) {
-    console.error('Error loading map data:', error);
+    console.error('Error fetching map data:', error);
   }
 }
 
-loadMapData();
+fetchFortniteMapData();
